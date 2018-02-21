@@ -10,7 +10,7 @@ import ResponsiveTabs from '../components/ResponsiveTabs/ResponsiveTabs';
 import runscript from '../utils/runscript';
 import validateSizes from '../utils/validateSizes';
 
-import {compile} from 'svelte/compiler/svelte';
+import {compile} from 'svelte/compiler/svelte.js';
 
 const PADDING = 3;
 const SIZE = 20;
