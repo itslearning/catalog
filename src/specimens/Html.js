@@ -99,8 +99,15 @@ class Html extends React.Component {
   }
 
   componentDidMount() {
-    const {runScript} = this.props;
-    runScript && Array.from(this.specimen.querySelectorAll('script')).forEach(runscript);
+    const {runScript, frame} = this.props;
+
+    if (runScript) {
+      const scope = frame
+        ? this.specimen.querySelector('iframe').contentDocument
+        : this.specimen;
+
+      Array.from(scope.querySelectorAll('script')).forEach(runscript);
+    }
 
     if (this.state.activeScreenSize) {
       window.addEventListener('resize', this.updateParentWidth);
