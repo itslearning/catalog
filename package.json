@@ -106,7 +106,8 @@
     "rollup-plugin-replace": "^2.0.0",
     "rollup-plugin-uglify": "^3.0.0",
     "rollup-watch": "^4.3.1",
-    "styled-jsx": "^1.0.10"
+    "styled-jsx": "^1.0.10",
+    "svelte": "^1.55.0"
   },
   "repository": {
     "type": "git",

@@ -10,6 +10,8 @@ import ResponsiveTabs from '../components/ResponsiveTabs/ResponsiveTabs';
 import runscript from '../utils/runscript';
 import validateSizes from '../utils/validateSizes';
 
+import {compile} from 'svelte/compiler/svelte';
+
 const PADDING = 3;
 const SIZE = 20;
 
@@ -99,9 +101,7 @@ class Html extends React.Component {
   }
 
   componentDidMount() {
-    const {runScript} = this.props;
-
-    runScript && Array.from(this.specimen.querySelectorAll('script')).forEach(runscript);
+    Array.from(this.specimen.querySelectorAll('script')).forEach(runscript);
 
     if (this.state.activeScreenSize) {
       window.addEventListener('resize', this.updateParentWidth);
@@ -166,8 +166,20 @@ class Html extends React.Component {
       : null;
 
     // This is where we will compile the Svelte.
+    const {code} = compile(children, {format: 'iife', name: 'App'});
+    const id = Math.round(Math.random() * 10000);
+    const script = `
+        <div id="svelte-specimen-${id}"></div>
+        <script>
+            ${code}
+            const target = document.getElementById('svelte-specimen-${id}');
+
+            const app = new App({target});
+        </script>
+    `;
+
     // eslint-disable-next-line
-    const content = <div dangerouslySetInnerHTML={{__html: children}} />;
+    const content = <div dangerouslySetInnerHTML={{__html: script}} />;
 
     if (options.responsive && !validSizes) {
       return <Hint warning>Please check that the responsive parameters match an existing entry.</Hint>;
@@ -199,7 +211,6 @@ Html.propTypes = {
   children: PropTypes.string.isRequired,
   catalog: catalogShape.isRequired,
   responsive: PropTypes.oneOfType([PropTypes.bool, PropTypes.string, PropTypes.arrayOf(PropTypes.string)]),
-  runScript: PropTypes.bool,
   plain: PropTypes.bool,
   light: PropTypes.bool,
   dark: PropTypes.bool,
