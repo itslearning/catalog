@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {catalogShape} from '../../CatalogPropTypes';
 import FrameComponent from './FrameComponent';
+import runscript from '../../utils/runscript';
 
 const frameStyle = {
   width: '100%',
@@ -20,6 +21,35 @@ export default class Frame extends Component {
   constructor() {
     super();
     this.state = {};
+    this.firstRun = true;
+  }
+
+  renderDidFinish() {
+    const {runScript} = this.props;
+
+    if (runScript && this.firstRun) {
+      this.evalFrameScripts();
+    }
+
+    this.firstRun = false;
+  }
+
+  evalFrameScripts() {
+    const scope = this.frame.iframe.contentDocument;
+    const headScripts = Array.from(scope.head.querySelectorAll('script'));
+    const bodyScripts = Array.from(scope.body.querySelectorAll('script'));
+
+    bodyScripts.forEach((bodyScript) => {
+      // const scriptAlreadyExecuted = headScripts.some((headScript) => {
+      //   return headScript.textContent === bodyScript.textContent;
+      // });
+
+      // if (scriptAlreadyExecuted) {
+      //   return;
+      // }
+
+      runscript(bodyScript);
+    });
   }
 
   render() {
@@ -29,6 +59,22 @@ export default class Frame extends Component {
     const autoHeight = !this.props.height;
     const scale = Math.min(1, parentWidth / width);
     const scaledHeight = autoHeight ? height : height * scale;
+
+    const onRender = (content) => {
+      if (!autoHeight) {
+        this.renderDidFinish();
+
+        return;
+      }
+
+      const contentHeight = content.offsetHeight;
+
+      if (contentHeight !== height) {
+        this.setState({height: contentHeight});
+      }
+
+      this.renderDidFinish();
+    };
 
     return (
       <div style={{lineHeight: 0, width: parentWidth, height: scaledHeight}}>
@@ -40,6 +86,7 @@ export default class Frame extends Component {
           overflow: 'hidden'
         }}>
           <FrameComponent
+            ref={(frame) => {this.frame = frame;}}
             style={frameStyle}
             frameBorder='0'
             scrolling={scrolling}
@@ -47,12 +94,7 @@ export default class Frame extends Component {
               <style key='stylereset'>{'html,body{margin:0;padding:0;}'}</style>,
               ...renderStyles(styles)
             ]}
-            onRender={autoHeight ? (content) => {
-              const contentHeight = content.offsetHeight;
-              if (contentHeight !== height) {
-                this.setState({height: contentHeight});
-              }
-            } : ()=>null}
+            onRender={onRender}
           >
             {children}
           </FrameComponent>
@@ -67,7 +109,8 @@ Frame.propTypes = {
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   parentWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   height: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  scrolling: PropTypes.oneOf(['yes', 'no', 'auto'])
+  scrolling: PropTypes.oneOf(['yes', 'no', 'auto']),
+  runScript: PropTypes.bool
 };
 
 Frame.contextTypes = {

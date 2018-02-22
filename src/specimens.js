@@ -4,7 +4,7 @@ import Code from './specimens/Code';
 import Color from './specimens/Color';
 import ColorPalette from './specimens/ColorPalette';
 import Html from './specimens/Html';
-import Svelte from './specimens/Svelte';
+// import Svelte from './specimens/Svelte';
 import Hint from './specimens/Hint';
 import Image from './specimens/Image';
 import Table from './specimens/Table';
@@ -26,6 +26,6 @@ export default {
   type: Type,
   download: Download,
   video: Video,
-  react: ReactSpecimen,
-  svelte: Svelte
+  react: ReactSpecimen
+  // svelte: Svelte
 };

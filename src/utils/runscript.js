@@ -27,11 +27,11 @@ let enqueue = (handler) => {
   }
   return dequeue(handler);
 };
-let execScript = (decorate) => {
-  let script = document.createElement('script');
+let execScript = (decorate, doc = document) => {
+  let script = doc.createElement('script');
   script.setAttribute('type', 'text/javascript');
   decorate(script);
-  let head = document.getElementsByTagName('head')[0] || document.documentElement;
+  let head = doc.getElementsByTagName('head')[0] || doc.documentElement;
   return head.appendChild(script);
 };
 let execRemote = (src) => {
@@ -45,13 +45,13 @@ let execRemote = (src) => {
     });
   };
 };
-let execInline = (src) => {
+let execInline = (src, doc = document) => {
   return () => {
     return new Promise( (resolve) => {
       return execScript( (script) => {
-        script.appendChild(document.createTextNode(src));
+        script.appendChild(doc.createTextNode(src));
         return resolve();
-      });
+      }, doc);
     });
   };
 };
@@ -61,8 +61,7 @@ export default (srcOrEl) => {
     enqueue(execRemote(srcOrEl));
   }
   if (srcOrEl.textContent && !isEmpty(srcOrEl.textContent.trim())) {
-    return enqueue(execInline(srcOrEl.textContent));
+    return enqueue(execInline(srcOrEl.textContent, srcOrEl.ownerDocument));
   }
   return void 0;
 };
-

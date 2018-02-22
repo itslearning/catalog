@@ -38,10 +38,12 @@ class FrameComponent extends Component {
   }
 
   componentDidMount() {
+    console.log('mount');
     this.renderFrameContents();
   }
 
   componentDidUpdate() {
+    console.log('update');
     this.renderFrameContents();
   }
 
