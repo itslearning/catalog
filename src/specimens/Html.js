@@ -146,7 +146,7 @@ class Html extends React.Component {
 
   render() {
     // children contains the markup
-    const {catalog: {theme, responsiveSizes}, children, runScript, frame, ...options} = this.props;
+    const {catalog: {theme, responsiveSizes}, children, runScript, frame, frameSrc, ...options} = this.props;
     const {activeScreenSize, parentWidth, viewSource} = this.state;
     const styles = getStyle(theme);
     const validSizes = validateSizes(options.responsive, responsiveSizes);
@@ -186,6 +186,7 @@ class Html extends React.Component {
           <div style={{...styles.content, ...exampleStyles}}>
             {frame || activeScreenSize
               ? <Frame
+                  src={frameSrc}
                   width={activeScreenSize && activeScreenSize.width}
                   parentWidth={parentWidth ? parentWidth : '100%'}
                   height={activeScreenSize && activeScreenSize.height}
@@ -212,7 +213,8 @@ Html.propTypes = {
   light: PropTypes.bool,
   dark: PropTypes.bool,
   noSource: PropTypes.bool,
-  frame: PropTypes.bool
+  frame: PropTypes.bool,
+  frameSrc: PropTypes.string
 };
 
 export default Specimen(undefined, undefined, {withChildren: true})(Radium(Html));

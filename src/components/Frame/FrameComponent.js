@@ -38,12 +38,10 @@ class FrameComponent extends Component {
   }
 
   componentDidMount() {
-    console.log('mount');
     this.renderFrameContents();
   }
 
   componentDidUpdate() {
-    console.log('update');
     this.renderFrameContents();
   }
 
@@ -56,6 +54,19 @@ class FrameComponent extends Component {
 
   renderFrameContents() {
     if (!this.iframe) {
+      return;
+    }
+
+    if (this.props.src) {
+      this.iframe.onload = () => {
+        this.iframe.contentDocument.body.style.padding = '.5rem';
+        this.props.onRender(this.iframe.contentDocument.body);
+
+        this.iframe.onload = null;
+      };
+
+      this.iframe.src = this.props.src;
+
       return;
     }
 
@@ -116,6 +127,7 @@ FrameComponent.propTypes = {
   head: PropTypes.node,
   onRender: PropTypes.func,
   children: PropTypes.node,
+  src: PropTypes.string,
 
   // These props are passed through to the underlying <iframe>
   frameBorder: PropTypes.string,

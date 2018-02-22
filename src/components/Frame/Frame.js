@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, {Component} from 'react';
 import {catalogShape} from '../../CatalogPropTypes';
 import FrameComponent from './FrameComponent';
-import runscript from '../../utils/runscript';
 
 const frameStyle = {
   width: '100%',
@@ -21,60 +20,15 @@ export default class Frame extends Component {
   constructor() {
     super();
     this.state = {};
-    this.firstRun = true;
-  }
-
-  renderDidFinish() {
-    const {runScript} = this.props;
-
-    if (runScript && this.firstRun) {
-      this.evalFrameScripts();
-    }
-
-    this.firstRun = false;
-  }
-
-  evalFrameScripts() {
-    const scope = this.frame.iframe.contentDocument;
-    const headScripts = Array.from(scope.head.querySelectorAll('script'));
-    const bodyScripts = Array.from(scope.body.querySelectorAll('script'));
-
-    bodyScripts.forEach((bodyScript) => {
-      // const scriptAlreadyExecuted = headScripts.some((headScript) => {
-      //   return headScript.textContent === bodyScript.textContent;
-      // });
-
-      // if (scriptAlreadyExecuted) {
-      //   return;
-      // }
-
-      runscript(bodyScript);
-    });
   }
 
   render() {
-    const {children, width, parentWidth, scrolling} = this.props;
+    const {children, width, parentWidth, scrolling, src} = this.props;
     const {catalog: {page: {styles}}} = this.context;
     const height = this.state.height || this.props.height;
     const autoHeight = !this.props.height;
     const scale = Math.min(1, parentWidth / width);
     const scaledHeight = autoHeight ? height : height * scale;
-
-    const onRender = (content) => {
-      if (!autoHeight) {
-        this.renderDidFinish();
-
-        return;
-      }
-
-      const contentHeight = content.offsetHeight;
-
-      if (contentHeight !== height) {
-        this.setState({height: contentHeight});
-      }
-
-      this.renderDidFinish();
-    };
 
     return (
       <div style={{lineHeight: 0, width: parentWidth, height: scaledHeight}}>
@@ -88,13 +42,20 @@ export default class Frame extends Component {
           <FrameComponent
             ref={(frame) => {this.frame = frame;}}
             style={frameStyle}
+            src={src}
             frameBorder='0'
             scrolling={scrolling}
             head={[
               <style key='stylereset'>{'html,body{margin:0;padding:0;}'}</style>,
               ...renderStyles(styles)
             ]}
-            onRender={onRender}
+            onRender={autoHeight ? (content) => {
+              const contentHeight = content.offsetHeight;
+
+              if (contentHeight !== height) {
+                this.setState({height: contentHeight});
+              }
+            } : () => null}
           >
             {children}
           </FrameComponent>
@@ -105,6 +66,7 @@ export default class Frame extends Component {
 }
 
 Frame.propTypes = {
+  src: PropTypes.string,
   children: PropTypes.element,
   width: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   parentWidth: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
