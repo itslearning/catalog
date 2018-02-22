@@ -98,13 +98,12 @@ class FrameComponent extends Component {
   }
 
   render() {
-    const {style, frameBorder, allowTransparency, scrolling} = this.props;
+    const {style, frameBorder, scrolling} = this.props;
     return (
       <iframe
         ref={(el) => { this.iframe = el; }}
         style={style}
         frameBorder={frameBorder}
-        allowTransparency={allowTransparency}
         scrolling={scrolling} />
     );
   }
@@ -118,7 +117,6 @@ FrameComponent.propTypes = {
 
   // These props are passed through to the underlying <iframe>
   frameBorder: PropTypes.string,
-  allowTransparency: PropTypes.string,
   scrolling: PropTypes.string
 };
 

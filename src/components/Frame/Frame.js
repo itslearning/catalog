@@ -42,7 +42,6 @@ export default class Frame extends Component {
           <FrameComponent
             style={frameStyle}
             frameBorder='0'
-            allowTransparency='true'
             scrolling={scrolling}
             head={[
               <style key='stylereset'>{'html,body{margin:0;padding:0;}'}</style>,
